@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+redis
+Crypto
+pycryptodome
+PyJWT
+cx_Oracle
+sqlalchemy
+python-dotenv

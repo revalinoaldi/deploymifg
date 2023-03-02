@@ -1,0 +1,97 @@
+
+NAMA_PERUSAHAAN
+NAMA_ADMEDIKA
+ALAMAT_PERUSAHAAN
+KOTA_PERUSAHAAN
+KD_POS
+TELP_PERUSAHAAN
+FAX_PERUSAHAAN
+JENIS_USAHA
+NARAHUBUNG
+ALAMAT_NARAHUBUNG
+TELP_NARAHUBUNG
+
+
+NO_SPA (polis baru): SELECT F_GEN_NO_SPA('') FROM DUAL
+NO_SPA (polis lama / perpanjangan, 2110A00101 adalah nospa lama): SELECT F_GEN_NO_SPA('2110A00101') FROM DUAL
+
+CREATE TABLE ASKES.HC_SPA
+(
+NO_SPA
+KD_PERUSAHAAN
+KD_PAKET
+ALAMAT_PENAGIHAN
+KOTA_PENAGIHAN
+KD_POS_PENAGIHAN
+TELP_PENAGIHAN
+TGL_MOHON_SPA
+TERTANGGUNG
+TGL_REKAM
+USER_REKAM
+);
+
+
+CREATE TABLE ASKES.HC_POLIS
+(
+NO_POLIS
+NO_SPA
+MASA_ASURANSI
+TGL_MULAI_POLIS
+TGL_AKHIR_POLIS
+TGL_DISETUJUI
+NAMA_PENANGGUNG_JAWAB
+EMAIL_PENANGGUNG_JAWAB
+TGL_REKAM
+USER_REKAM
+TGL_UBAH
+PENUTUP
+TEMBUSAN1
+TEMBUSAN2
+AKRONIM
+);
+
+CREATE TABLE ASKES.HC_MUTASI_PESERTA
+(
+  NO: int = Field(..., example="XX12312", max_length=2)
+  ID_ORANG: str = Field(..., example="XX12312", max_length=11)
+  NO_SPA: str = Field(..., example="XX12312", max_length=10)
+  NO_PESERTA: str = Field(..., example="MIFGxxxx")
+  KD_STATUS_AWAL: int = Field(..., example="1", max_length=2)
+  KD_STATUS_AKHIR: int = Field(..., example="1", max_length=3)
+  KD_JENIS_MUTASI: int = Field(..., example="1", max_length=2)
+  KD_PLAN: str = Field(..., example="PA12312", max_length=7)
+  TGL_AWAL: DATE = Field(..., example="XX12312")
+  TGL_AKHIR: DATE = Field(..., example="XX12312")
+  KETERANGAN: str = Field(..., example="XX12312", max_length=200)
+  TGL_REKAM: DATE = Field(..., example="XX12312")
+  USER_REKAM: str = Field(..., example="")
+)
+
+CREATE TABLE ASKES.HC_TERTANGGUNG
+(
+  NO_PESERTA: str = Field(..., example="XX12312", max_length=25)
+  NO_SPA: str = Field(..., example="XX12312", max_length=10)
+  ID_ORANG: str = Field(..., example="XX12312", max_length=11) ID_PARENT : diisi dengan ID_ORANG jika ada peserta utama
+  ID_PARENT: str = Field(..., example="XX12312", max_length=11)
+  KD_STATUS: int = Field(..., example="1", max_length=2)
+  KD_KANTOR: str = Field(..., example="KT1", max_length=3, default=None)
+  KD_PLAN: str = Field(..., example="PA12312", max_length=7)
+  TGL_MULAI_BEKERJA: DATE = Field(..., example="XX12312")
+  TGL_BERHENTI_BEKERJA: DATE = Field(..., example="XX12312")
+  TGL_MULAI_KEPESERTAAN: DATE = Field(..., example="XX12312")
+  JML_ANAK: int = Field(..., example="XX12312", max_length=2)
+  HUBUNGAN               NUMBER(2), HUBUNGAN : 1 Peserta Utama, 2 Istri, 3 Suami, 4 dst Anak
+  PREMI                  NUMBER(15,2)
+);
+
+
+
+CREATE TABLE ASKES.HC_HC_PENERIMA_MANFAAT
+(
+  NO_PESERTA: str = Field(..., example="XX12312", max_length=25)
+  NO_SPA: str = Field(..., example="SPA12312", max_length=10)
+  ID_ORANG : str = Field(..., example="XX12312", max_length=11)
+  KD_STATUS: int = Field(..., example="1", max_length=2)
+  HUBUNGAN: str = Field(..., example="XX12312", max_length=2)
+  PERSENTASE: str = Field(..., example="10", max_length=3)
+)
