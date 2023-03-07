@@ -1,0 +1,22 @@
+{
+    "name": "powerkernel/yii2-fineuploader",
+    "description": "Fine Uploader extension for Yii2",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension", "fineuploader"],
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Harry Tang",
+            "email": "harry@powerkernel.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0",
+        "npm-asset/fine-uploader" : "~5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "powerkernel\\fineuploader\\": ""
+        }
+    }
+}
