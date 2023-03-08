@@ -19,6 +19,9 @@ use common\models\ClosingStatement;
 use common\models\FormPermintaan;
 use kartik\mpdf\Pdf;
 use linslin\yii2\curl;
+
+use Aws\SecretsManager\SecretsManagerClient; 
+use Aws\Exception\AwsException;
 /**
  * Site controller
  */
@@ -114,18 +117,22 @@ class SiteController extends Controller
         }
         switch ($slug) {
             case 'form-permintaan':
-			$session = Yii::$app->session;
-			if(!$session->has('verifAgent')){
-				return $this->goHome();
-			}
-			$agent = base64_decode($agent);
-			if(strtotime(date("d-m-Y H:i:s")) >= strtotime($session->get('verifAgent')['expire']) || !password_verify($agent, $session->get('verifAgent')['agen'])){
-				$session->remove('verifAgent');
-				return $this->goHome();
-			}
+				$session = Yii::$app->session;
+				if(!$session->has('verifAgent')){
+					return $this->goHome();
+				}
+				$agent = base64_decode($agent);
+				if(strtotime(date("d-m-Y H:i:s")) >= strtotime($session->get('verifAgent')['expire']) || !password_verify($agent, $session->get('verifAgent')['agen'])){
+					$session->remove('verifAgent');
+					return $this->goHome();
+				}
+
+				$getSecret = $this->getSecretManager();
+				var_dump($getSecret);
 
             	$params = [
 		    		"noagen"=> $agent
+					// "noagen" => '9999999999'
 		    	];
 				
 				$curl = curl_init();
@@ -180,7 +187,45 @@ class SiteController extends Controller
             	$params = [
 					"noagen" => '9999999999'
 		    	];
-								
+				
+				/*
+				$curl = curl_init();
+
+						curl_setopt_array($curl, array(
+						  CURLOPT_URL => 'https://asuransi.ifg-life.id/api/mifg/?noagen=9999999999',
+						  CURLOPT_RETURNTRANSFER => true,
+						  CURLOPT_ENCODING => '',
+						  CURLOPT_MAXREDIRS => 10,
+						  CURLOPT_TIMEOUT => 0,
+						  CURLOPT_FOLLOWLOCATION => true,
+						  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+						  CURLOPT_CUSTOMREQUEST => 'GET',
+						  CURLOPT_HTTPHEADER => array(
+							'Authorization: Basic bWlmZzIwMjE6bTFmOUAkNG5kMQ=='
+						  ),
+						));
+
+						$response = curl_exec($curl);
+						//var_dump($response);die;
+
+						curl_close($curl);
+						$ag = \yii\helpers\Json::decode($response);
+						
+					*/
+		    	// $curl = new curl\Curl();
+
+				// $response = $curl->setRawPostData(\yii\helpers\Json::encode($params))
+					// ->setHeaders([
+				        // 'Content-Type' => 'application/json',
+				        // 'Content-Length' => strlen(json_encode($params))
+				    // ])
+				    // ->setOption(CURLOPT_SSL_VERIFYHOST, '0')
+				    // ->setOption(CURLOPT_SSL_VERIFYPEER, '0')
+				    // ->post('https://middleware.ifg-life.id/ifg/agen');
+
+				// $ag = \yii\helpers\Json::decode($response);
+				
+				
 				if ($params['noagen'] == '9999999999') {
 					$ag = [
 						"error" => false,
@@ -773,7 +818,7 @@ class SiteController extends Controller
 					// var_dump($output['L00002']);die;
 					
 					/*SIMPAN DATA TERTOLAK*/
-					$sql_resp = "INSERT INTO kesehatan_resp(resp) VALUES('".\yii\helpers\Json::encode($resKesehatanTertanggung)."')";
+					$sql_resp = "INSERT INTO ifgdb.kesehatan_resp(resp) VALUES('".\yii\helpers\Json::encode($resKesehatanTertanggung)."')";
 					Yii::$app->db->createCommand($sql_resp)->execute();
 					
 					$kirimdata_rejected=[
@@ -813,7 +858,7 @@ class SiteController extends Controller
 							]
 						];
 					
-					$sql_simpan = "INSERT INTO form_permintaan(ref_agent,no_spaj,data_spaj,status,otp_code, api_response, rumus_response, jumlah_bayar_premi, plan, kelas, no_polis, paid_status, doku, premi_tambahan, upload_ktp, upload_kk, upload_ktp_tertanggung, upload_kk_tertanggung) 
+					$sql_simpan = "INSERT INTO ifgdb.form_permintaan(ref_agent,no_spaj,data_spaj,status,otp_code, api_response, rumus_response, jumlah_bayar_premi, plan, kelas, no_polis, paid_status, doku, premi_tambahan, upload_ktp, upload_kk, upload_ktp_tertanggung, upload_kk_tertanggung) 
 					VALUES('".$output['noAgen']."','".$nomorSPAJ."','".\yii\helpers\Json::encode($kirimdata_rejected)."','".$resKesehatanTertanggung['resp_code']."','-','".\yii\helpers\Json::encode($resKesehatanTertanggung)."','".\yii\helpers\Json::encode($resKesehatanTertanggung)."','0', '".substr($output['kelas'],0,1)."', '".substr($output['kelas'],1,1)."', no_polis, paid_status,'','','".$output['uploadKtp']."','".$output['uploadKK']."','".$output['uploadKtpTertanggung']."','".$output['uploadKKTertanggung']."')";
 					Yii::$app->db->createCommand($sql_simpan)->execute();
 					
@@ -1112,14 +1157,14 @@ class SiteController extends Controller
 						];
 
 						//echo \yii\helpers\Json::encode($kirimdata); die;
-						// $sql_simpan = "INSERT INTO kesehatan_resp(resp)  VALUES('".\yii\helpers\Json::encode($kirimdata)."')";
+						// $sql_simpan = "INSERT INTO ifgdb.kesehatan_resp(resp)  VALUES('".\yii\helpers\Json::encode($kirimdata)."')";
 						// Yii::$app->db->createCommand($sql_simpan)->execute();
 						
 						
 						$curl = curl_init();
 
 						curl_setopt_array($curl, array(
-						  CURLOPT_URL => 'http://10.10.20.186/mi/individual_insurance',
+						  CURLOPT_URL => 'http://10.10.1.150/mi/individual_insurance',
 						  CURLOPT_RETURNTRANSFER => true,
 						  //CURLOPT_ENCODING => '',
 						  //CURLOPT_MAXREDIRS => 10,
@@ -1146,7 +1191,7 @@ class SiteController extends Controller
 						//exit;
 						
 						/* SIMPAN KE DALAM DATABASE */
-						$sql_simpan = "INSERT INTO form_permintaan(ref_agent,no_spaj,data_spaj,status,otp_code, api_response, rumus_response, jumlah_bayar_premi, plan, kelas, no_polis, paid_status, doku, premi_tambahan, upload_ktp, upload_kk, upload_ktp_tertanggung, upload_kk_tertanggung) VALUES('".$output['noAgen']."','".$nomorSPAJ."','".\yii\helpers\Json::encode($kirimdata)."','".$resp_status."','".$generate_otp."','".\yii\helpers\Json::encode($res)."','".\yii\helpers\Json::encode($resKesehatanTertanggung)."','$jumlahBayarPremi', '".substr($output['kelas'],0,1)."', '".substr($output['kelas'],1,1)."', no_polis, paid_status,'',".\yii\helpers\Json::encode($dataTarif).",'".$output['uploadKtp']."','".$output['uploadKK']."','".$output['uploadKtpTertanggung']."','".$output['uploadKKTertanggung']."')";
+						$sql_simpan = "INSERT INTO ifgdb.form_permintaan(ref_agent,no_spaj,data_spaj,status,otp_code, api_response, rumus_response, jumlah_bayar_premi, plan, kelas, no_polis, paid_status, doku, premi_tambahan, upload_ktp, upload_kk, upload_ktp_tertanggung, upload_kk_tertanggung) VALUES('".$output['noAgen']."','".$nomorSPAJ."','".\yii\helpers\Json::encode($kirimdata)."','".$resp_status."','".$generate_otp."','".\yii\helpers\Json::encode($res)."','".\yii\helpers\Json::encode($resKesehatanTertanggung)."','$jumlahBayarPremi', '".substr($output['kelas'],0,1)."', '".substr($output['kelas'],1,1)."', no_polis, paid_status,'',".\yii\helpers\Json::encode($dataTarif).",'".$output['uploadKtp']."','".$output['uploadKK']."','".$output['uploadKtpTertanggung']."','".$output['uploadKKTertanggung']."')";
 						Yii::$app->db->createCommand($sql_simpan)->execute();
 						//var_dump($sql_simpan);die;
 						//var_dump($res["resp"]['resultCode']);die;
@@ -1170,7 +1215,7 @@ class SiteController extends Controller
 							];
 
 							curl_setopt_array($curl, array(
-							  CURLOPT_URL => 'http://10.10.20.186/mi/upload_spaj',
+							  CURLOPT_URL => 'http://10.10.1.150/mi/upload_spaj',
 							  CURLOPT_RETURNTRANSFER => true,
 							  CURLOPT_ENCODING => '',
 							  CURLOPT_MAXREDIRS => 10,
@@ -1196,7 +1241,7 @@ class SiteController extends Controller
 
 							//var_dump($res_otp);die;
 							// /*update link doku*/
-							//$sql_update = "UPDATE form_permintaan SET doku = '".$res_notif."' WHERE no_spaj = '".$nomorSPAJ."' AND otp_code='".$generate_otp."' ORDER BY id DESC LIMIT 1";
+							//$sql_update = "UPDATE ifgdb.form_permintaan SET doku = '".$res_notif."' WHERE no_spaj = '".$nomorSPAJ."' AND otp_code='".$generate_otp."' ORDER BY id DESC LIMIT 1";
 							//Yii::$app->db->createCommand($sql_update)->execute();
 							
 							//$this->espaj($nomorSPAJ);
@@ -1208,7 +1253,7 @@ class SiteController extends Controller
 							$retval = array("respcode" => "1", "msg" => "success", "row" => "mbel", "resp_msg" => "Berhasil Menyimpan Data..", "otp" => $res_otp);
 						}else{
 							
-							$sql_simpan = "INSERT INTO form_permintaan(ref_agent,no_spaj,data_spaj,status,otp_code, api_response, rumus_response, jumlah_bayar_premi, plan, kelas, no_polis, paid_status, doku, premi_tambahan, upload_ktp, upload_kk, upload_ktp_tertanggung, upload_kk_tertanggung) VALUES('".$output['noAgen']."','".$nomorSPAJ."','".\yii\helpers\Json::encode($kirimdata)."','".$resp_status."','-','".\yii\helpers\Json::encode($res)."','".\yii\helpers\Json::encode($resKesehatanTertanggung)."','0', '".substr($output['kelas'],0,1)."', '".substr($output['kelas'],1,1)."', no_polis, paid_status,'','','".$output['uploadKtp']."','".$output['uploadKK']."','".$output['uploadKtpTertanggung']."','".$output['uploadKKTertanggung']."')";
+							$sql_simpan = "INSERT INTO ifgdb.form_permintaan(ref_agent,no_spaj,data_spaj,status,otp_code, api_response, rumus_response, jumlah_bayar_premi, plan, kelas, no_polis, paid_status, doku, premi_tambahan, upload_ktp, upload_kk, upload_ktp_tertanggung, upload_kk_tertanggung) VALUES('".$output['noAgen']."','".$nomorSPAJ."','".\yii\helpers\Json::encode($kirimdata)."','".$resp_status."','-','".\yii\helpers\Json::encode($res)."','".\yii\helpers\Json::encode($resKesehatanTertanggung)."','0', '".substr($output['kelas'],0,1)."', '".substr($output['kelas'],1,1)."', no_polis, paid_status,'','','".$output['uploadKtp']."','".$output['uploadKK']."','".$output['uploadKtpTertanggung']."','".$output['uploadKKTertanggung']."')";
 							Yii::$app->db->createCommand($sql_simpan)->execute();
 							
 							// $retval = array("respcode" => "00", "msg" => "error", "row" => "mbel", "resp_msg" => "Gagal Mendapatkan Respon dari Server IFG ", "otp" => "000000");
@@ -1462,7 +1507,7 @@ class SiteController extends Controller
 		    ])
 		    ->setOption(CURLOPT_SSL_VERIFYHOST, '0')
 		    ->setOption(CURLOPT_SSL_VERIFYPEER, '0')
-		    ->post('http://10.10.20.186/ifg/agen');
+		    ->post('http://10.10.1.150/ifg/agen');
 
 		$ret = \yii\helpers\Json::decode($response);
 
@@ -1487,7 +1532,7 @@ class SiteController extends Controller
 		    ])
 		    ->setOption(CURLOPT_SSL_VERIFYHOST, '0')
 		    ->setOption(CURLOPT_SSL_VERIFYPEER, '0')
-		    ->post('http://10.10.20.186/address/mapping');
+		    ->post('http://10.10.1.150/address/mapping');
 
 		$ret = \yii\helpers\Json::decode($response);
 		return \yii\helpers\Json::encode($ret);
@@ -1514,7 +1559,7 @@ class SiteController extends Controller
 			$res_notif = $this->push_notif_email($no_spaj);
 							
 			/*update link doku*/
-			$sql_update = "UPDATE form_permintaan SET status='VERIFIED' , doku = '".$res_notif."' WHERE no_spaj = '".$no_spaj."' AND otp_code='".$_POST['data']."' ORDER BY id DESC LIMIT 1";
+			$sql_update = "UPDATE ifgdb.form_permintaan SET status='VERIFIED' , doku = '".$res_notif."' WHERE no_spaj = '".$no_spaj."' AND otp_code='".$_POST['data']."' ORDER BY id DESC LIMIT 1";
 			Yii::$app->db->createCommand($sql_update)->execute();
 							
 			
@@ -1549,7 +1594,7 @@ class SiteController extends Controller
 		    ])
 		    ->setOption(CURLOPT_SSL_VERIFYHOST, '0')
 		    ->setOption(CURLOPT_SSL_VERIFYPEER, '0')
-		    ->post('http://10.10.20.186/sms/otp');
+		    ->post('http://10.10.1.150/sms/otp');
 
 		$res = \yii\helpers\Json::decode($response);
 
@@ -1586,11 +1631,11 @@ class SiteController extends Controller
 		    ])
 		    ->setOption(CURLOPT_SSL_VERIFYHOST, '0')
 		    ->setOption(CURLOPT_SSL_VERIFYPEER, '0')
-		    ->post('http://10.10.20.186/sms/otp');
+		    ->post('http://10.10.1.150/sms/otp');
 
 		$res = \yii\helpers\Json::decode($response);
 		
-		$sql_update = "UPDATE form_permintaan SET otp_code = '".$pin."' WHERE no_spaj = '".$nospaj."' ORDER BY id DESC LIMIT 1";
+		$sql_update = "UPDATE ifgdb.form_permintaan SET otp_code = '".$pin."' WHERE no_spaj = '".$nospaj."' ORDER BY id DESC LIMIT 1";
 		Yii::$app->db->createCommand($sql_update)->execute();
 
 		return $this->redirect(['./otp']);
@@ -1612,7 +1657,7 @@ class SiteController extends Controller
 		    ])
 		    ->setOption(CURLOPT_SSL_VERIFYHOST, '0')
 		    ->setOption(CURLOPT_SSL_VERIFYPEER, '0')
-		    ->post('http://10.10.20.186/notification/email');
+		    ->post('http://10.10.1.150/notification/email');
 
 		$res = \yii\helpers\Json::decode($response);
 
@@ -1634,7 +1679,7 @@ class SiteController extends Controller
 		    ])
 		    ->setOption(CURLOPT_SSL_VERIFYHOST, '0')
 		    ->setOption(CURLOPT_SSL_VERIFYPEER, '0')
-		    ->post('http://10.10.20.186/notification/email_reject');
+		    ->post('http://10.10.1.150/notification/email_reject');
 
 		$res = \yii\helpers\Json::decode($response);
 
@@ -1664,7 +1709,7 @@ class SiteController extends Controller
 		    ])
 		    ->setOption(CURLOPT_SSL_VERIFYHOST, '0')
 		    ->setOption(CURLOPT_SSL_VERIFYPEER, '0')
-		    ->post('http://10.10.20.186/address/mapping');
+		    ->post('http://10.10.1.150/address/mapping');
 			
 		$datakota = \yii\helpers\Json::encode($response);
 
@@ -1735,7 +1780,7 @@ class SiteController extends Controller
 				$curl = curl_init();
 
 				curl_setopt_array($curl, array(
-				  CURLOPT_URL => 'http://10.10.20.186/mi/upload_closing_agent',
+				  CURLOPT_URL => 'http://10.10.1.150/mi/upload_closing_agent',
 				  CURLOPT_RETURNTRANSFER => true,
 				  CURLOPT_ENCODING => '',
 				  CURLOPT_MAXREDIRS => 10,
@@ -2112,7 +2157,7 @@ class SiteController extends Controller
 
 		/*HITUNG GROSS*/
 		$total_tarif = 0;
-		$sql = "SELECT COALESCE(tarif,0)AS tarif FROM tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='GROSS'";
+		$sql = "SELECT COALESCE(tarif,0)AS tarif FROM ifgdb.tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='GROSS'";
 
 		//var_dump($sql); die;
 		$exe = Yii::$app->db->createCommand($sql)->queryOne();
@@ -2130,7 +2175,7 @@ class SiteController extends Controller
 		
 		/*EKSTRA PREMI JIKA MELEBIHI KETENTUAN POIN KESEHATAN*/
 		if($poin_terkumpul>=25){
-			$sql = "SELECT COALESCE(tarif,0)AS extrapremi FROM tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='EXTRA'";
+			$sql = "SELECT COALESCE(tarif,0)AS extrapremi FROM ifgdb.tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='EXTRA'";
 			$exe = Yii::$app->db->createCommand($sql)->queryOne();
 			$total_tarif += $exe['extrapremi'] * $persen_ekstra/100; //EXTRA
 			$remark_kesehatan = "Extra Premi Atas Riwayat Kesehatan";
@@ -2141,7 +2186,7 @@ class SiteController extends Controller
 		/*JIKA MENGAMBIL EKSTRA PREMI*/
 		/*TAMBAHAN MANFAAT : KEMATIAN*/
 		if($kematian=='1'){
-			$sql = "SELECT COALESCE(tarif,0)AS kematian FROM tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='KEMATIAN'";
+			$sql = "SELECT COALESCE(tarif,0)AS kematian FROM ifgdb.tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='KEMATIAN'";
 			$exe = Yii::$app->db->createCommand($sql)->queryOne();
 			$total_tarif += $exe['kematian']; //kematian
 			$remark_kematian = "Santunan Kematian";
@@ -2149,7 +2194,7 @@ class SiteController extends Controller
 			
 			/*JIKA MELEBIHI POIN KESEHATAN*/
 				if($poin_terkumpul>=25){
-					$sql = "SELECT COALESCE(tarif,0)AS extrakematian FROM tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='EXTRA-KEMATIAN'";
+					$sql = "SELECT COALESCE(tarif,0)AS extrakematian FROM ifgdb.tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='EXTRA-KEMATIAN'";
 					$exe = Yii::$app->db->createCommand($sql)->queryOne();
 					$total_tarif += $exe['extrakematian'] * $persen_ekstra/100; //EXTRA KEMATIAN
 					$remark_extra_kematian = "Extra Premi Atas Riwayat Kesehatan";
@@ -2159,7 +2204,7 @@ class SiteController extends Controller
 		
 		/*TAMBAHAN MANFAAT : RAWAT INAP*/
 		if($inap=='1'){
-			$sql = "SELECT COALESCE(tarif,0)AS inap FROM tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='INAP'";
+			$sql = "SELECT COALESCE(tarif,0)AS inap FROM ifgdb.tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='INAP'";
 			$exe = Yii::$app->db->createCommand($sql)->queryOne();
 			$total_tarif += $exe['inap']; //inap
 			$remark_inap = "Santunan Harian Rawat Inap";
@@ -2167,7 +2212,7 @@ class SiteController extends Controller
 			
 			/*JIKA MELEBIHI POIN KESEHATAN*/
 				if($poin_terkumpul>=25){
-					$sql = "SELECT COALESCE(tarif,0)AS extrainap FROM tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='EXTRA-INAP'";
+					$sql = "SELECT COALESCE(tarif,0)AS extrainap FROM ifgdb.tarif WHERE jenis = '$jenis' AND kelas = '$kelasnya' AND jenis_kelamin='$jenisKelamin' AND age_group = '$age_group' AND cara_bayar = '$periodeBayarPremi' AND tipe='EXTRA-INAP'";
 					$exe = Yii::$app->db->createCommand($sql)->queryOne();
 					$total_tarif += $exe['extrainap'] * $persen_ekstra/100; //EXTRA INAP
 					$remark_extra_inap = "Extra Premi Atas Riwayat Kesehatan";
@@ -2192,16 +2237,12 @@ class SiteController extends Controller
 
 
 
-
-
-
-
 	public function actionVerifyAgent()
 		{
 			$session = Yii::$app->session;
 			$noagen = preg_replace("/[^a-zA-Z0-9]/", "", $_POST["data"]);
 			
-			
+			/*
 			$curl = curl_init();
 
 						curl_setopt_array($curl, array(
@@ -2221,11 +2262,34 @@ class SiteController extends Controller
 						));
 
 						$response = curl_exec($curl);
+						//var_dump($response);die;
 
 						curl_close($curl);
 						$ag = \yii\helpers\Json::decode($response);
+				*/
 				
-
+				if ($noagen == '9999999999') {
+					$ag = [
+						"error" => false,
+						"message" => "SUCCESS",
+						"data" => [
+							"NOAGEN" => $noagen,
+							"NOLISENSIAGEN" => null,
+							"NAMAAGEN" => "AGEN DUMMY LEADER INDIVIDUAL BUSINESS",
+							"TELEPONAGEN" => "08159878369",
+							"EMAILAGEN" => "agen.dummy@Ifg-life.id"
+						]
+					];
+				}
+				
+				else{
+					$ag = [
+						"error" => true,
+						"message" => "ERROR",
+						"data" => null
+					];
+				}
+				
 				if($ag["data"]==null){
 					if($session->has('verifAgent')){
 						$session->remove('verifAgent');
@@ -2235,6 +2299,30 @@ class SiteController extends Controller
 				}
 				
 				
+				// $dataagent = $ag["data"];
+				
+			// $curl = new curl\Curl();
+			
+			// $params = [
+					// "noagen" => $_POST["data"]
+		    	// ];
+			
+
+				// $response = $curl->setRawPostData(\yii\helpers\Json::encode($params))
+					// ->setHeaders([
+				        // 'Content-Type' => 'application/json',
+				        // 'Content-Length' => strlen(json_encode($params))
+				    // ])
+				    // ->setOption(CURLOPT_SSL_VERIFYHOST, '0')
+				    // ->setOption(CURLOPT_SSL_VERIFYPEER, '0')
+				    // ->post('https://middleware.ifg-life.id/ifg/agen');
+
+				// $ag = \yii\helpers\Json::decode($response);
+
+				// if($ag["resp"]["data"]==null){
+					// $retval = array("respcode" => "0", "msg" => "failed", "row" => "mbel", "resp_msg" => "Data Agen tidak ditemukan");
+					// return json_encode($retval);
+				// }
 				$encrypted = base64_encode($noagen);
 				$retval = array("respcode" => "1", "msg" => "success", "row" => "mbel", "resp_msg" => "Berhasil", "agen" => $encrypted);
 				$session['verifAgent'] = [
@@ -2246,7 +2334,63 @@ class SiteController extends Controller
 			
 			return json_encode($retval); 
 			
+		
+			
 		}
+
+
+	
+	// public function actionVerifyAgent()
+	// 	{
+	// 		$session = Yii::$app->session;
+	// 		$noagen = preg_replace("/[^a-zA-Z0-9]/", "", $_POST["data"]);
+			
+			
+	// 		$curl = curl_init();
+
+	// 					curl_setopt_array($curl, array(
+	// 					  CURLOPT_URL => 'https://asuransi.ifg-life.id/api/mifg/?noagen='. $noagen,
+	// 					  CURLOPT_RETURNTRANSFER => true,
+	// 					  CURLOPT_ENCODING => '',
+	// 					  CURLOPT_MAXREDIRS => 10,
+	// 					  CURLOPT_TIMEOUT => 0,
+	// 					  CURLOPT_FOLLOWLOCATION => true,
+	// 					  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+	// 					  CURLOPT_CUSTOMREQUEST => 'GET',
+	// 					CURLOPT_SSL_VERIFYPEER => false,
+	// 					CURLOPT_SSL_VERIFYHOST => false,
+	// 					  CURLOPT_HTTPHEADER => array(
+	// 						'Authorization: Basic bWlmZzIwMjE6bTFmOUAkNG5kMQ=='
+	// 					  ),
+	// 					));
+
+	// 					$response = curl_exec($curl);
+
+	// 					curl_close($curl);
+	// 					$ag = \yii\helpers\Json::decode($response);
+				
+
+	// 			if($ag["data"]==null){
+	// 				if($session->has('verifAgent')){
+	// 					$session->remove('verifAgent');
+	// 				}
+	// 				$retval = array("respcode" => "0", "msg" => "failed", "row" => "mbel", "resp_msg" => "Data Agen tidak ditemukan");
+	// 				return json_encode($retval); 
+	// 			}
+				
+				
+	// 			$encrypted = base64_encode($noagen);
+	// 			$retval = array("respcode" => "1", "msg" => "success", "row" => "mbel", "resp_msg" => "Berhasil", "agen" => $encrypted);
+	// 			$session['verifAgent'] = [
+	// 				'agen' => password_hash($noagen, PASSWORD_DEFAULT),
+	// 				'expire' => date("d-m-Y H:i:s", strtotime('+30 minutes'))
+	// 			];
+	// 			/*RETURN TO VIEW*/
+			
+			
+	// 		return json_encode($retval); 
+			
+	// 	}
 
 
 
@@ -2391,7 +2535,52 @@ class SiteController extends Controller
         return $pdf->render();
 	}
 	
-	
+	private function getSecretManager(){
+		$client = new SecretsManagerClient([
+			'version' => 'latest',
+			'region' => 'ap-southeast-3',
+		]);
+		
+		$secretName = 'arn:aws:iam::391510675580:role/sm-ifgl-jg2mq-nprd-dev-legacy-mifg';
+
+		try {
+			$result = $client->getSecretValue([
+				'SecretId' => $secretName,
+			]);
+			if (isset($result['SecretString'])) {
+				return $secret = $result['SecretString'];
+			} else {
+				return $secret = base64_decode($result['SecretBinary']);
+			}
+		} catch (AwsException $e) {
+			$error = $e->getAwsErrorCode();
+			if ($error == 'DecryptionFailureException') {
+				// Secrets Manager can't decrypt the protected secret text using the provided AWS KMS key.
+				// Handle the exception here, and/or rethrow as needed.
+				throw $e;
+			}
+			if ($error == 'InternalServiceErrorException') {
+				// An error occurred on the server side.
+				// Handle the exception here, and/or rethrow as needed.
+				throw $e;
+			}
+			if ($error == 'InvalidParameterException') {
+				// You provided an invalid value for a parameter.
+				// Handle the exception here, and/or rethrow as needed.
+				throw $e;
+			}
+			if ($error == 'InvalidRequestException') {
+				// You provided a parameter value that is not valid for the current state of the resource.
+				// Handle the exception here, and/or rethrow as needed.
+				throw $e;
+			}
+			if ($error == 'ResourceNotFoundException') {
+				// We can't find the resource that you asked for.
+				// Handle the exception here, and/or rethrow as needed.
+				throw $e;
+			}
+		}
+	}
 	
 	public function actionPrint($id){
 		return $this->goHome();

@@ -12,7 +12,7 @@ $sql_cs = "SELECT coalesce(count(id),0)as cs FROM closing_statement WHERE no_spa
 $data_cs = Yii::$app->db->createCommand($sql_cs)->queryOne();
 $n_cs =  $data_cs['cs'];
 if($n_cs > 0){
-	echo "<script>location.href = 'http://10.170.64.30';</script>";
+	echo "<script>location.href = 'https://mifg.ifg-life.id';</script>";
 }
 ?>
 <style>
@@ -464,7 +464,7 @@ $script = <<< JS
 															showConfirmButton: false,
 															},function () {
 																// location.reload();
-																location.href = "http://10.170.64.30";
+																location.href = "https://mifg.ifg-life.id";
 															}
 														);
 													}else{
