@@ -8,7 +8,7 @@ $client = new SecretsManagerClient([
     'region' => 'ap-southeast-3',
 ]);
 
-$secretName = 'arn:aws:secretsmanager:ap-southeast-3:402663288391:secret:nprd/dev/jg2mq/mifg-78rFsq';
+$secretName = 'arn:aws:secretsmanager:ap-southeast-3:402663288391:secret:prd/legacy/mifg-SL5M0O';
 
 try {
     $result = $client->getSecretValue([
