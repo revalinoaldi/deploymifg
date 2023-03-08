@@ -1,0 +1,24 @@
+validate_otp = {
+    "status":
+        {
+            "msg":"Sukses",
+            "rc":1
+        },
+    "data":
+        {
+            "access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwODEyODUxMzY3MzkiLCJ1dWlkIjoiYWJjMTIzIiwidXNlcl9sZXZlbCI6MywiZXhwIjoxNjEzMDM5NzA3fQ.FShO9ynSsebaWuawhxanljzvZ-zIdVnGgrW2X1Z9uOg","refresh_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwODEyODUxMzY3MzkiLCJ1dWlkIjoiYWJjMTIzIiwidXNlcl9sZXZlbCI6MywiYXQiOiJleUpoYkdjaU9pSklVekkxTmlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKemRXSWlPaUl3T0RFeU9EVXhNelkzTXpraUxDSjFkV2xrSWpvaVlXSmpNVEl6SWl3aWRYTmxjbDlzWlhabGJDSTZNeXdpWlhod0lqb3hOakV6TURNNU56QTNmUS5GU2hPOXluU3NlYmFXdWF3aHhhbmxqenZaLXpJZFZuR2dyVzJYMVo5dU9nIiwiZXhwIjoxNjEzMDM5NzA3fQ.9u8vbPFIzPJSavhFEaATvljwNmjfv2_lSAzq1HIhyqE",
+            "user":
+                {
+                    "uname":"dimas",
+                    "uemail":"andreasdimas@gmail.com",
+                    "msisdn":"081285136739",
+                    "pin_trx":"1234",
+                    "is_blocked":False,
+                    "cvs_code":None,
+                    "cluster_code":"JA1",
+                    "user_level":3,
+                    "kyc_level":0,
+                    "plafond":0
+                }
+        }
+}

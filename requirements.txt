@@ -1,0 +1,14 @@
+DBUtils==1.3
+fastapi
+PyMySQL
+uvicorn
+passlib
+python-jose
+redis
+bcrypt
+pandas
+python-multipart
+transitions
+requests
+memcache
+pyfcm
