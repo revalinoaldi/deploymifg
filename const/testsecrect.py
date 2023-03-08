@@ -3,7 +3,7 @@ from botocore.exceptions import ClientError
 import json
 
 def get_secret():
-    secret_name = "arn:aws:secretsmanager:ap-southeast-3:402663288391:secret:nprd/dev/jg2mq/mifg-78rFsq"
+    secret_name = "arn:aws:secretsmanager:ap-southeast-3:402663288391:secret:prd/legacy/mifg-SL5M0O"
     region_name = "ap-southeast-3"
 
     session = boto3.session.Session()

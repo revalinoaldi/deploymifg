@@ -6,7 +6,7 @@ from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
 import json
 
 def get_secret():
-    secret_name = "arn:aws:secretsmanager:ap-southeast-3:402663288391:secret:nprd/dev/jg2mq/mifg-78rFsq"
+    secret_name = "arn:aws:secretsmanager:ap-southeast-3:402663288391:secret:prd/legacy/mifg-SL5M0O"
     region_name = "ap-southeast-3"
 
     client = botocore.session.get_session().create_client('secretsmanager',region_name=region_name)
