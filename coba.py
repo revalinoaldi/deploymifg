@@ -1,20 +1,21 @@
 import boto3
-import botocore
-import botocore.session
 from botocore.exceptions import ClientError
-from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
 import json
 
 def get_secret():
     secret_name = "arn:aws:secretsmanager:ap-southeast-3:402663288391:secret:prd/legacy/mifg-SL5M0O"
     region_name = "ap-southeast-3"
 
-    client = botocore.session.get_session().create_client('secretsmanager',region_name=region_name)
-    cache_config = SecretCacheConfig()
-    cache = SecretCache(config=cache_config, client=client)
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name,
+    )
 
     try:
-        secret = cache.get_secret_string(secret_name)
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
     except ClientError as e:
         if e.response['Error']['Code'] == 'ResourceNotFoundException':
             print("The requested secret " + secret_name + " was not found")
