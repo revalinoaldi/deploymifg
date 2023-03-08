@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from const.testsecrect import *
+from const.testaws import *
 load_dotenv(override=True)
 secret = get_secret()
 
