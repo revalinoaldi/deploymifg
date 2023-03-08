@@ -1,0 +1,50 @@
+[2022-12-03 12:00:14.823] ERROR [139972322561472] - {"req_id": "FOWFSR20221203120014", "http_method": "POST", "url_path": "/address/mapping", "headers": [["host", "10.170.64.32:8000"], ["user-agent", "Yii2-Curl-Agent"], ["accept", "*/*"], ["content-type", "application/json"], ["content-length", "55"]], "query_param": [], "ip_forwarded": null, "ip_client_host": "10.170.64.30", "request_body": "{\"provinsi\":\"\",\"kota\":\"\",\"kecamatan\":\"\",\"kelurahan\":\"\"}", "error": "port should be of type int", "trace": "[FrameInfo(frame=<frame object at 0x55e3c1762a88>, filename='./routers/__init__.py', lineno=45, function='custom_route_handler', code_context=['                response: Response = await original_route_handler(request)\\n'], index=0), FrameInfo(frame=<frame object at 0x55e3c1240908>, filename='/usr/local/lib/python3.6/site-packages/fastapi/routing.py', lineno=232, function='app', code_context=['                dependant=dependant, values=values, is_coroutine=is_coroutine\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dc36a0240>, filename='/usr/local/lib/python3.6/site-packages/fastapi/routing.py', lineno=162, function='run_endpoint_function', code_context=['        return await run_in_threadpool(dependant.call, **values)\\n'], index=0), FrameInfo(frame=<frame object at 0x55e3c1763ae8>, filename='/usr/local/lib/python3.6/site-packages/starlette/concurrency.py', lineno=41, function='run_in_threadpool', code_context=['    return await anyio.to_thread.run_sync(func, *args)\\n'], index=0), FrameInfo(frame=<frame object at 0x55e3c1763d38>, filename='/usr/local/lib/python3.6/site-packages/anyio/to_thread.py', lineno=32, function='run_sync', code_context=['        func, *args, cancellable=cancellable, limiter=limiter\\n'], index=0), FrameInfo(frame=<frame object at 0x55e3c124ca38>, filename='/usr/local/lib/python3.6/site-packages/anyio/_backends/_asyncio.py', lineno=937, function='run_sync_in_worker_thread', code_context=['            return await future\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dbc001338>, filename='/usr/local/lib/python3.6/site-packages/anyio/_backends/_asyncio.py', lineno=867, function='run', code_context=['                        result = context.run(func, *args)\\n'], index=0), FrameInfo(frame=<frame object at 0x55e3c16a9e78>, filename='/usr/local/lib/python3.6/site-packages/contextvars/__init__.py', lineno=38, function='run', code_context=['            return callable(*args, **kwargs)\\n'], index=0), FrameInfo(frame=<frame object at 0x55e3c177f6f8>, filename='./routers/address.py', lineno=14, function='mapping', code_context=['    mysql = Mysql()\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dc3552048>, filename='./utils/sqlpool.py', lineno=16, function='__init__', code_context=['        self._conn = Mysql.__getConn(self._dbname)\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dbc001ac8>, filename='./utils/sqlpool.py', lineno=30, function='__getConn', code_context=['                                      use_unicode=True, charset=DBCHARSET, cursorclass=DictCursor)\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dbc001f78>, filename='/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py', lineno=267, function='__init__', code_context=['        idle = [self.dedicated_connection() for i in range(mincached)]\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dc35513d8>, filename='/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py', lineno=267, function='<listcomp>', code_context=['        idle = [self.dedicated_connection() for i in range(mincached)]\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dc357f8b8>, filename='/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py', lineno=338, function='dedicated_connection', code_context=['        return self.connection(False)\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dbc002478>, filename='/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py', lineno=327, function='connection', code_context=['                    con = self.steady_connection()\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dc357b3f8>, filename='/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py', lineno=275, function='steady_connection', code_context=['            self._failures, self._ping, True, *self._args, **self._kwargs)\\n'], index=0), FrameInfo(frame=<frame object at 0x55e3c169d308>, filename='/usr/local/lib/python3.6/site-packages/DBUtils/SteadyDB.py', lineno=139, function='connect', code_context=['        failures, ping, closeable, *args, **kwargs)\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dbc0026b8>, filename='/usr/local/lib/python3.6/site-packages/DBUtils/SteadyDB.py', lineno=192, function='__init__', code_context=['        self._store(self._create())\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dbc002c18>, filename='/usr/local/lib/python3.6/site-packages/DBUtils/SteadyDB.py', lineno=211, function='_create', code_context=['        con = self._creator(*self._args, **self._kwargs)\\n'], index=0), FrameInfo(frame=<frame object at 0x7f4dbc002fe8>, filename='/usr/local/lib/python3.6/site-packages/pymysql/connections.py', lineno=290, function='__init__', code_context=['            raise ValueError(\"port should be of type int\")\\n'], index=0)]"}
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py", line 325, in connection
+    con = self._idle_cache.pop(0)
+IndexError: pop from empty list
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "./routers/__init__.py", line 45, in custom_route_handler
+    response: Response = await original_route_handler(request)
+  File "/usr/local/lib/python3.6/site-packages/fastapi/routing.py", line 232, in app
+    dependant=dependant, values=values, is_coroutine=is_coroutine
+  File "/usr/local/lib/python3.6/site-packages/fastapi/routing.py", line 162, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "/usr/local/lib/python3.6/site-packages/starlette/concurrency.py", line 41, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+  File "/usr/local/lib/python3.6/site-packages/anyio/to_thread.py", line 32, in run_sync
+    func, *args, cancellable=cancellable, limiter=limiter
+  File "/usr/local/lib/python3.6/site-packages/anyio/_backends/_asyncio.py", line 937, in run_sync_in_worker_thread
+    return await future
+  File "/usr/local/lib/python3.6/site-packages/anyio/_backends/_asyncio.py", line 867, in run
+    result = context.run(func, *args)
+  File "/usr/local/lib/python3.6/site-packages/contextvars/__init__.py", line 38, in run
+    return callable(*args, **kwargs)
+  File "./routers/address.py", line 14, in mapping
+    mysql = Mysql()
+  File "./utils/sqlpool.py", line 16, in __init__
+    self._conn = Mysql.__getConn(self._dbname)
+  File "./utils/sqlpool.py", line 30, in __getConn
+    use_unicode=True, charset=DBCHARSET, cursorclass=DictCursor)
+  File "/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py", line 267, in __init__
+    idle = [self.dedicated_connection() for i in range(mincached)]
+  File "/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py", line 267, in <listcomp>
+    idle = [self.dedicated_connection() for i in range(mincached)]
+  File "/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py", line 338, in dedicated_connection
+    return self.connection(False)
+  File "/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py", line 327, in connection
+    con = self.steady_connection()
+  File "/usr/local/lib/python3.6/site-packages/DBUtils/PooledDB.py", line 275, in steady_connection
+    self._failures, self._ping, True, *self._args, **self._kwargs)
+  File "/usr/local/lib/python3.6/site-packages/DBUtils/SteadyDB.py", line 139, in connect
+    failures, ping, closeable, *args, **kwargs)
+  File "/usr/local/lib/python3.6/site-packages/DBUtils/SteadyDB.py", line 192, in __init__
+    self._store(self._create())
+  File "/usr/local/lib/python3.6/site-packages/DBUtils/SteadyDB.py", line 211, in _create
+    con = self._creator(*self._args, **self._kwargs)
+  File "/usr/local/lib/python3.6/site-packages/pymysql/connections.py", line 290, in __init__
+    raise ValueError("port should be of type int")
+ValueError: port should be of type int

@@ -1,0 +1,70 @@
+"""
+Database
+"""
+# DBHOST = "172.16.204.24"
+# DBPORT = 3306
+# DBUSER = "nabiladev"
+# DBPWD = "nabiladev"
+# DBNAME = "onetapdev"
+# DBCHARSET = "utf8"
+
+DBHOST = "database-mifg-nprd.ifg-life.id"
+DBPORT = 3306
+DBUSER = "admin"
+DBPWD = "Password09"
+DBNAME = "ifgdb"
+DBCHARSET = "utf8"
+
+"""
+REDIS
+"""
+REDIS_HOST = "127.0.0.1"
+REDIS_PORT = "6379"
+REDIS_DB = "1"
+REDIS_PWD = ""
+
+
+"""
+DOKU
+"""
+URLCHECKOUTPROD = 'https://api-sandbox.doku.com/checkout/v1/payment'
+URLCHECKOUTDEV = 'https://api-sandbox.doku.com/checkout/v1/payment'
+TARGETCHECKOUT = '/checkout/v1/payment'
+REQTARGETNOTIFVA = '/doku/notif_va'
+REQTARGETNOTIFCC = '/doku/notif_cc'
+ADMFEE = 0
+CURRENCY = 'IDR'
+DOKU_PREFIX_VA = ''
+CALLBACK = ''
+EXPIRY = 1440
+COUNTRY = 'ID'
+PAYMENT_METHOD = [
+            "VIRTUAL_ACCOUNT_BCA",
+            "VIRTUAL_ACCOUNT_BANK_MANDIRI",
+            "VIRTUAL_ACCOUNT_BANK_SYARIAH_MANDIRI",
+            "VIRTUAL_ACCOUNT_BRI",
+            "VIRTUAL_ACCOUNT_DOKU",
+            "CREDIT_CARD",
+        ]
+DOKU_CLIENT_ID_SANDBOX = 'MCH-0400-1196549930646'
+DOKU_SECRET_KEY_SANDBOX = 'SK-N0Ps5O9EgIKJZfNdlMJG'
+
+DOKU_CLIENT_ID_PROD = ''
+DOKU_SECRET_KEY_PROD = ''
+
+
+"""
+IFG Translator
+"""
+IFG_USERID = 'ifg-life'
+IFG_SECRETKEY = 'ZmFlNDA1NjQ1ZGFlMTRkOWZlOTU0NTIxODc2YzVmN2YwNGVkMTgxOTRmMWUwYjk2MzY5NDU5NDA3YTBlYzZiZA=='
+
+IFG_HOST = 'http://gateway.ifg-life.id' 
+IFG_TOKEN_URL = IFG_HOST + '/token/get-token'
+IFG_PESERTA_URL = IFG_HOST + '/ifg/get-peserta'
+IFG_UPDATE_POLIS_URL = IFG_HOST + '/ifg/update-polis'
+IFG_ADD_MUTASI_URL = IFG_HOST + '/ifg/add-mutasi'
+IFG_OTP_URL = IFG_HOST + '/ifg/send-otp'
+IFG_SEND_EMAIL = IFG_HOST + '/ifg/send-email'
+
+LINK_CLOSING_STATEMENT_AGENT = 'https://registration.ifg-life.id/closing/{}'
